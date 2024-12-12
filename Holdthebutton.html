@@ -49,6 +49,7 @@
             border-radius: 10px;
             cursor: pointer;
             transition: background-color 0.2s;
+            user-select: none;
         }
 
         .button:active {
@@ -70,7 +71,6 @@
             }
         }
 
-        /* Hide the current time span */
         #currentTime {
             display: none;
         }
@@ -85,7 +85,6 @@
         <button id="holdButton" class="button">Hold Me!</button>
         <div class="result">
             <p>Closest Time: <span id="closestTime">0.00</span> seconds</p>
-            <!-- Current time is now hidden, but it still exists in the HTML -->
             <p>Current Time: <span id="currentTime">0.00</span> seconds</p>
         </div>
     </div>
@@ -104,8 +103,6 @@
         function updateCurrentTime() {
             if (holding) {
                 let elapsedTime = (Date.now() - startTime) / 1000;
-                // No longer updating current time in the display
-                // currentTimeSpan.innerText = elapsedTime.toFixed(2); // Removed this line
             }
         }
 
@@ -126,7 +123,7 @@
         function startHold() {
             holding = true;
             startTime = Date.now();
-            interval = setInterval(updateCurrentTime, 10);  // Update time every 10ms
+            interval = setInterval(updateCurrentTime, 10);
         }
 
         function stopHold() {
