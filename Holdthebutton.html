@@ -18,6 +18,7 @@
             justify-content: center;
             align-items: center;
             height: 100vh;
+            user-select: none; /* Prevent all text selection */
         }
 
         .game-container {
@@ -49,7 +50,6 @@
             border-radius: 10px;
             cursor: pointer;
             transition: background-color 0.2s;
-            user-select: none;
         }
 
         .button:active {
