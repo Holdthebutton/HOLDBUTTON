@@ -3,119 +3,139 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Hold The Button</title>
+    <title>Hold the Button Game</title>
     <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
         body {
             font-family: 'Arial', sans-serif;
-            background-color: #f4f4f9;
+            background-color: #f0f0f0;
             display: flex;
             justify-content: center;
             align-items: center;
             height: 100vh;
-            margin: 0;
-            flex-direction: column;
+        }
+
+        .game-container {
             text-align: center;
+            padding: 20px;
+            background-color: #ffffff;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            border-radius: 10px;
+            width: 90%;
+            max-width: 400px;
         }
+
         h1 {
-            color: #4CAF50;
-            font-size: 36px;
-        }
-        p {
-            font-size: 18px;
-            color: #555;
-        }
-        .button-container {
-            margin-bottom: 30px;
-        }
-        #tapButton {
             font-size: 24px;
-            padding: 30px 60px;
+            margin-bottom: 20px;
+        }
+
+        .instructions p {
+            font-size: 18px;
+            margin-bottom: 20px;
+        }
+
+        .button {
             background-color: #4CAF50;
             color: white;
+            padding: 20px;
+            font-size: 20px;
             border: none;
-            border-radius: 12px;
+            border-radius: 10px;
             cursor: pointer;
-            box-shadow: 0 6px 12px rgba(0, 0, 0, 0.1);
-            transition: all 0.3s ease;
+            transition: background-color 0.2s;
         }
-        #tapButton:hover {
+
+        .button:active {
             background-color: #45a049;
         }
-        #tapButton:active {
-            background-color: #388e3c;
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
-            transform: translateY(4px);
+
+        .result {
+            margin-top: 20px;
         }
-        .score-board {
-            background-color: #ffffff;
-            padding: 20px;
-            border-radius: 12px;
-            width: 300px;
-            box-shadow: 0 6px 15px rgba(0, 0, 0, 0.1);
+
+        .result p {
+            font-size: 16px;
         }
-        .score-board p {
-            font-size: 20px;
-            color: #333;
-            margin: 10px 0;
+
+        @media (max-width: 500px) {
+            .button {
+                font-size: 18px;
+                padding: 15px;
+            }
         }
-        .record {
-            font-weight: bold;
-            color: #2196F3;
+
+        /* Hide the current time span */
+        #currentTime {
+            display: none;
         }
     </style>
 </head>
 <body>
-
-    <h1>Hold The Button Game</h1>
-    <p>Hold the button to see how long you can Hold!</p>
-
-    <div class="button-container">
-        <button id="tapButton">Hold Me!</button>
-    </div>
-
-    <div class="score-board">
-        <p>Time held: <span id="currentScore">0</span> seconds</p>
-        <p class="record">Personal Record: <span id="personalRecord">0</span> seconds</p>
+    <div class="game-container">
+        <h1>Hold the Button for Exactly 10 Seconds!</h1>
+        <div class="instructions">
+            <p>Press and hold the button for 10 seconds.</p>
+        </div>
+        <button id="holdButton" class="button">Hold Me!</button>
+        <div class="result">
+            <p>Closest Time: <span id="closestTime">0.00</span> seconds</p>
+            <!-- Current time is now hidden, but it still exists in the HTML -->
+            <p>Current Time: <span id="currentTime">0.00</span> seconds</p>
+        </div>
     </div>
 
     <script>
-        // Retrieve personal record from localStorage, or set it to 0 if not found
-        let personalRecord = parseFloat(localStorage.getItem('personalRecord')) || 0;
+        let holdButton = document.getElementById("holdButton");
+        let currentTimeSpan = document.getElementById("currentTime");
+        let closestTimeSpan = document.getElementById("closestTime");
 
-        // Update the display of personal record immediately after loading
-        document.getElementById('personalRecord').innerText = personalRecord.toFixed(2);
-
+        let closestTime = 0;
         let startTime = 0;
-        let endTime = 0;
-        let currentScore = 0;
+        let holding = false;
 
-        // Start measuring when the mouse button is pressed down
-        document.getElementById("tapButton").addEventListener("mousedown", function() {
-            startTime = new Date().getTime();
-            document.getElementById("tapButton").innerText = "Release Me!";
-        });
+        let interval;
 
-        // End measuring when the mouse button is released
-        document.getElementById("tapButton").addEventListener("mouseup", function() {
-            endTime = new Date().getTime();
-            currentScore = (endTime - startTime) / 1000;  // Convert milliseconds to seconds
-            document.getElementById("currentScore").innerText = currentScore.toFixed(2);
-
-            // Check if the new score is higher than the current personal record
-            if (currentScore > personalRecord) {
-                personalRecord = currentScore;
-
-                // Update the display of the personal record
-                document.getElementById("personalRecord").innerText = personalRecord.toFixed(2);
-
-                // Save the new personal record in localStorage
-                localStorage.setItem('personalRecord', personalRecord);
+        function updateCurrentTime() {
+            if (holding) {
+                let elapsedTime = (Date.now() - startTime) / 1000;
+                // No longer updating current time in the display
+                // currentTimeSpan.innerText = elapsedTime.toFixed(2); // Removed this line
             }
+        }
 
-            // Reset the button text
-            document.getElementById("tapButton").innerText = "Tap Me!";
-        });
+        function checkResult() {
+            let elapsedTime = (Date.now() - startTime) / 1000;
+            if (Math.abs(elapsedTime - 10) < Math.abs(closestTime - 10)) {
+                closestTime = elapsedTime;
+                closestTimeSpan.innerText = closestTime.toFixed(2);
+            }
+        }
+
+        holdButton.addEventListener("touchstart", startHold);
+        holdButton.addEventListener("mousedown", startHold);
+
+        holdButton.addEventListener("touchend", stopHold);
+        holdButton.addEventListener("mouseup", stopHold);
+
+        function startHold() {
+            holding = true;
+            startTime = Date.now();
+            interval = setInterval(updateCurrentTime, 10);  // Update time every 10ms
+        }
+
+        function stopHold() {
+            if (holding) {
+                holding = false;
+                clearInterval(interval);
+                checkResult();
+            }
+        }
     </script>
-
 </body>
 </html>
